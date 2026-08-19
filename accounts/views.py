@@ -3,7 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import LoginSerializer
+from .serializers import LoginSerializer, LogoutSerializer
+
 
 class LoginView(APIView):
     def post(self, request):
@@ -27,3 +28,11 @@ class LoginView(APIView):
             }
         )
 
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        serializer = LogoutSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'message': 'با موفقیت خارج شدید'})
