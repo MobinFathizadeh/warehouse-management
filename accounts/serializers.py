@@ -16,9 +16,9 @@ class LoginSerializer(serializers.Serializer):
         return data
 
 class LogoutSerializer(serializers.Serializer):
-    refresh_token = serializers.CharField()
+    refresh = serializers.CharField()
 
-    def validate_refresh_token(self, value):
+    def validate_refresh(self, value):
         try:
             RefreshToken(value)
         except TokenError:
@@ -26,5 +26,5 @@ class LogoutSerializer(serializers.Serializer):
         return value
 
     def save(self):
-        token = RefreshToken(self.validated_data['refresh_token'])
+        token = RefreshToken(self.validated_data['refresh'])
         token.blacklist()
