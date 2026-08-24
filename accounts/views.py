@@ -3,7 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import LoginSerializer, LogoutSerializer
+from rest_framework import mixins, viewsets
+from .models import  User
+
+from .serializers import LoginSerializer, LogoutSerializer, UserSerializer
 
 
 class LoginView(APIView):
@@ -36,3 +39,15 @@ class LogoutView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'message': 'با موفقیت خارج شدید'})
+
+
+
+class UserViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
