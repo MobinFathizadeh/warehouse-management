@@ -4,9 +4,12 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db import IntegrityError
 
 from rest_framework import mixins, viewsets
-from .models import User, Role, Permission, RolePermission
+
+from warehouses.models import Warehouse
+from .models import User, Role, Permission, RolePermission, UserWarehouse
 
 from .serializers import LoginSerializer, LogoutSerializer, UserSerializer, RoleSerializer, PermissionSerializer
 
@@ -53,6 +56,21 @@ class UserViewSet(
 ):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    @action(detail=True, methods=['post'])
+    def warehouses(self, request, pk=None):
+        user = self.get_object()
+        warehouse_id = request.data.get('warehouse_id')
+
+        if UserWarehouse.objects.filter(user=user, warehouse_id=warehouse_id).exists():
+            return Response({'error': 'already_exists', 'message': 'این انبار قبلاً تخصیص داده شده است'}, status=409)
+
+        try:
+            user_warehouse = UserWarehouse.objects.create(user=user, warehouse_id=warehouse_id)
+        except IntegrityError:
+            return Response({'error': 'already_exists', 'message': 'این انبار قبلاً تخصیص داده شده است'}, status=409)
+
+        return Response({'id': user_warehouse.id, 'user': user.id, 'warehouse': warehouse_id}, status=201)
 
 
 
