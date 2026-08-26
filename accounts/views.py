@@ -72,6 +72,16 @@ class UserViewSet(
 
         return Response({'id': user_warehouse.id, 'user': user.id, 'warehouse': warehouse_id}, status=201)
 
+    @action(detail=True, methods=['delete'], url_path='warehouses/(?P<warehouse_id>[^/.]+)')
+    def remove_warehouse(self, request, pk=None, warehouse_id=None):
+        user = self.get_object()
+        deleted_count, _ = UserWarehouse.objects.filter(user=user, warehouse_id=warehouse_id).delete()
+
+        if deleted_count == 0:
+            return Response({'error': 'not_found', 'message': 'این کاربر به این انبار دسترسی ندارد'}, status=404)
+
+        return Response(status=204)
+
 
 
 class RoleViewSet(viewsets.ModelViewSet):
