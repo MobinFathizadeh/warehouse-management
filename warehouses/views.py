@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import viewsets, mixins
 
-from .models import Warehouse
-from .serializers import WarehouseSerializer
+from .models import Warehouse, Location
+from .serializers import WarehouseSerializer, LocationSerializer
 
 
 
@@ -15,3 +15,20 @@ class WarehouseViewSet(
 ):
     queryset = Warehouse.objects.all()
     serializer_class = WarehouseSerializer
+
+
+
+class LocationViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
+    serializer_class = LocationSerializer
+
+    def get_queryset(self):
+        return Location.objects.filter(warehouse_id=self.kwargs['warehouse_id'])
+
+    def perform_create(self, serializer):
+        serializer.save(warehouse_id=self.kwargs['warehouse_id'])
