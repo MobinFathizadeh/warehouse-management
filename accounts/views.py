@@ -4,6 +4,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
 from django.db import IntegrityError
 
 from rest_framework import mixins, viewsets
@@ -15,6 +16,8 @@ from .serializers import LoginSerializer, LogoutSerializer, UserSerializer, Role
 
 
 class LoginView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
