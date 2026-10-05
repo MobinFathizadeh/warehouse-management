@@ -28,6 +28,10 @@ class User(AbstractUser):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
     role = models.ForeignKey(Role, on_delete= models.PROTECT, related_name='users')
 
+    def save(self, *args, **kwargs):
+        self.is_active = (self.status == 'active')
+        super().save(*args, **kwargs)
+
 class AuditLog(models.Model):
     user = models.ForeignKey(User, on_delete = models.SET_NULL, related_name= 'audit_logs', null=True)
     action = models.CharField(max_length=50)
