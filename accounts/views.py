@@ -12,7 +12,7 @@ from rest_framework import mixins, viewsets
 from warehouses.models import Warehouse
 from .models import User, Role, Permission, RolePermission, UserWarehouse
 
-from .serializers import LoginSerializer, LogoutSerializer, UserSerializer, RoleSerializer, PermissionSerializer
+from .serializers import LoginSerializer, LogoutSerializer, UserSerializer, RoleSerializer, PermissionSerializer, UserUpdateSerializer
 
 
 class LoginView(APIView):
@@ -59,6 +59,11 @@ class UserViewSet(
 ):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    def get_serializer_class(self):
+        if self.action in ('update', 'partial_update'):
+            return UserUpdateSerializer
+        return UserSerializer
 
     @action(detail=True, methods=['post'])
     def warehouses(self, request, pk=None):

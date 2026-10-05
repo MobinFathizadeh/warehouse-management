@@ -43,6 +43,13 @@ class UserSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'phone', 'status', 'role', 'date_joined']
+        read_only_fields = ['username']
+
+
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
