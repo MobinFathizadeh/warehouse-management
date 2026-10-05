@@ -70,6 +70,10 @@ class UserViewSet(
         user = self.get_object()
         warehouse_id = request.data.get('warehouse_id')
 
+        warehouse = Warehouse.objects.filter(id=warehouse_id, status='active').first()
+        if warehouse is None:
+            return Response({'error': 'not_found', 'message': 'انبار موردنظر یافت نشد'}, status=404)
+
         if UserWarehouse.objects.filter(user=user, warehouse_id=warehouse_id).exists():
             return Response({'error': 'already_exists', 'message': 'این انبار قبلاً تخصیص داده شده است'}, status=409)
 
