@@ -8,6 +8,19 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'parent', 'name', 'description']
 
+    def validate_parent(self, parent):
+        if parent is None:
+            return parent
+
+        if self.instance is not None:
+            node = parent
+            while node is not None:
+                if node.pk == self.instance.pk:
+                    raise serializers.ValidationError('دسته‌بندی نمی‌تواند والد خودش یا زیرمجموعه‌ی خودش باشد')
+                node = node.parent
+
+        return parent
+
 
 class CategoryTreeSerializer(serializers.ModelSerializer) :
     children = serializers.SerializerMethodField()
