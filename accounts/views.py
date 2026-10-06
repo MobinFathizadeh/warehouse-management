@@ -96,7 +96,14 @@ class UserViewSet(
 
 
 
-class RoleViewSet(viewsets.ModelViewSet):
+class RoleViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
+
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
@@ -119,6 +126,10 @@ class RoleViewSet(viewsets.ModelViewSet):
         return Response({'id': role_permission.id, 'role': role.id, 'permission': permission_id}, status=201)
 
 
-class PermissionViewSet(viewsets.ModelViewSet):
+class PermissionViewSet(
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
