@@ -100,16 +100,22 @@ class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
-
     @action(detail=True, methods=['post'])
     def permissions(self, request, pk=None):
         role = self.get_object()
         permission_id = request.data.get('permission_id')
 
+        if not Permission.objects.filter(id=permission_id).exists():
+            return Response({'error': 'not_found', 'message': 'مجوز موردنظر یافت نشد'}, status=404)
+
         if RolePermission.objects.filter(role=role, permission_id=permission_id).exists():
             return Response({'error': 'already_exists', 'message': 'این مجوز قبلاً تخصیص داده شده است'}, status=409)
 
-        role_permission = RolePermission.objects.create(role=role, permission_id=permission_id)
+        try:
+            role_permission = RolePermission.objects.create(role=role, permission_id=permission_id)
+        except IntegrityError:
+            return Response({'error': 'already_exists', 'message': 'این مجوز قبلاً تخصیص داده شده است'}, status=409)
+
         return Response({'id': role_permission.id, 'role': role.id, 'permission': permission_id}, status=201)
 
 
