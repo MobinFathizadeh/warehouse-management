@@ -35,6 +35,19 @@ class LocationSerializer(serializers.ModelSerializer):
 
         return parent
 
+    def validate(self, data):
+        warehouse_id = self.context['view'].kwargs['warehouse_id']
+        code = data.get('code')
+
+        if code is not None:
+            duplicates = Location.objects.filter(warehouse_id=warehouse_id, code=code)
+            if self.instance is not None:
+                duplicates = duplicates.exclude(pk=self.instance.pk)
+            if duplicates.exists():
+                raise serializers.ValidationError({'code': ['این کد در این انبار قبلاً استفاده شده است']})
+
+        return data
+
 
 class LocationTreeSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
