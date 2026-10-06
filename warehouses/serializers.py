@@ -18,6 +18,23 @@ class LocationSerializer(serializers.ModelSerializer):
         fields = ['id', 'warehouse', 'parent', 'code', 'name', 'type']
         extra_kwargs = {'warehouse': {'read_only': True},}
 
+    def validate_parent(self, parent):
+        if parent is None:
+            return parent
+
+        warehouse_id = self.context['view'].kwargs['warehouse_id']
+        if parent.warehouse_id != warehouse_id:
+            raise serializers.ValidationError('مکان والد باید متعلق به همین انبار باشد')
+
+        if self.instance is not None:
+            node = parent
+            while node is not None:
+                if node.pk == self.instance.pk:
+                    raise serializers.ValidationError('مکان نمی‌تواند والد خودش یا زیرمجموعه‌ی خودش باشد')
+                node = node.parent
+
+        return parent
+
 
 class LocationTreeSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
