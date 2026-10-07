@@ -65,9 +65,15 @@ class UserViewSet(
             return UserUpdateSerializer
         return UserSerializer
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post', 'get'])
     def warehouses(self, request, pk=None):
         user = self.get_object()
+
+        if request.method == 'GET':
+            warehouses = Warehouse.objects.filter(warehouse_users__user=user)
+            data = [{'id': w.id, 'code': w.code, 'name': w.name} for w in warehouses]
+            return Response({'data': data})
+
         warehouse_id = request.data.get('warehouse_id')
 
         warehouse = Warehouse.objects.filter(id=warehouse_id, status='active').first()
@@ -124,6 +130,16 @@ class RoleViewSet(
             return Response({'error': 'already_exists', 'message': 'این مجوز قبلاً تخصیص داده شده است'}, status=409)
 
         return Response({'id': role_permission.id, 'role': role.id, 'permission': permission_id}, status=201)
+
+    @action(detail=True, methods=['delete'], url_path='permissions/(?P<permission_id>[^/.]+)')
+    def remove_permission(self, request, pk=None, permission_id=None):
+        role = self.get_object()
+        deleted_count, _ = RolePermission.objects.filter(role=role, permission_id=permission_id).delete()
+
+        if deleted_count == 0:
+            return Response({'error': 'not_found', 'message': 'این مجوز برای این نقش تخصیص داده نشده است'}, status=404)
+
+        return Response(status=204)
 
 
 class PermissionViewSet(
